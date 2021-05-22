@@ -82,6 +82,7 @@ class VisualCryptographySecretSharing(object):
     def createSecretSharesImages(self):
         if not os.path.isdir("./SecretShares"):
             os.mkdir("SecretShares")
+        print("Starting to create secret shares images")
         for i in range(0, self.n):
             redShare = self.pixToRGB(self.imageShares[i, :, :, 0:8])
             greenShare = self.pixToRGB(self.imageShares[i, :, :, 8:16])
@@ -93,6 +94,7 @@ class VisualCryptographySecretSharing(object):
             secretShareImg.save("{}/SecretShares/{}{}.png".format(os.path.dirname(os.path.abspath(__file__)),
                                                                   self.secretSharesImageName, i + 1))
             self.secretShares[i] = ithShare
+        print("Secret shares images created!")
 
     # Add documentation
     def reconstructOriginalImage(self, secretSharesImageName="secretShare", reconstructedImageName="reconstructedImage",
@@ -109,6 +111,7 @@ class VisualCryptographySecretSharing(object):
         secretSharesArray = np.zeros([self.k, self.imWidth, self.imHeight, self.channel], np.uint8)
         reconstructedImage = np.zeros([self.imWidth, self.imHeight, self.channel], np.uint8)
 
+        print("Starting to reconstruct the original image using {} out of {} shares".format(k, n))
         indexes = list(range(1, self.n + 1))
         for i in range(0, self.k):
             shareIndex = random.choice(indexes)
@@ -164,6 +167,8 @@ class LprTest(object):
         if len(numSharesToReconsList) == 0:
             numSharesToReconsList = list(range(2, self.n + 1))
 
+        print("Starting LPR test")
+
         self.visualCrypto.secretSharingEncryption(self.secretSharesImageName, self.k, self.n)
 
         tempPlateNumberResults = hyperlpr.HyperLPR_plate_recognition(self.originalImage)
@@ -194,17 +199,36 @@ class LprTest(object):
                 self.reconstructedImagesPlateNumbers[currReconstructedImageName] = tempPlateNumberResults[0][0]
             else:
                 self.reconstructedImagesPlateNumbers[currReconstructedImageName] = 'N/A'
+        print("LPR test finished!")
 
     def printLprTestResults(self):
+        print("\nLPR test results:\n")
         print("Original image licence plate number [{}]".format(self.originalImagePlateNumbers))
+        originalLength = len(self.originalImagePlateNumbers)
         for key, val in self.secretSharesImagesPlateNumbers.items():
-            print("Secret Share image [{}] licence plate number [{}]".format(key, val))
+            numMatched = 0
+            for i in range(0, len(val)):
+                if self.originalImagePlateNumbers[i] == val[i]:
+                    numMatched += 1
+            print(
+                "Secret Share image [{}] licence plate number [{}], number of matched numbers in plate is [{}\{}]".format(
+                    key, val, numMatched, originalLength))
+
         for key, val in self.reconstructedImagesPlateNumbers.items():
-            print("Reconstructed image [{}] licence plate number [{}]".format(key, val))
+            numMatched = 0
+            for i in range(0, len(val)):
+                if self.originalImagePlateNumbers[i] == val[i]:
+                    numMatched += 1
+            print(
+                "Reconstructed image [{}] licence plate number [{}], number of matched numbers in plate is [{}\{}]".format(
+                    key, val, numMatched, originalLength))
+            if numMatched == originalLength:
+                print("All the numbers in the reconstructed image match with the original image!")
+                break
 
 
 # Main
 if __name__ == '__main__':
-    lprTest = LprTest(k=19, n=20)
+    lprTest = LprTest(k=5, n=10)
     lprTest.lprPerformTest()
     lprTest.printLprTestResults()
