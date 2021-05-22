@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: hyperlpr
+Version: 0.0.2
+Summary: A general small license plate recognition framework
+Home-page: https://github.com/zeusees/HyperLPR
+Author: Jack Yu
+Author-email: jack-yu-business@foxmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 2
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+Requires-Dist: opencv-python
+
+LPR framework
+
+
